@@ -3,24 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Love ❤️</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #weatherResult {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="particles"></canvas>
-
-    <div class="message-box">
-        <h1 class="title">My Love ❤️</h1>
-        <p class="love-message">You are the most beautiful thing in my life. I cherish every moment with you. 💕</p>
-        <div class="question-box">
-            <p class="question">Do you love me? 😊</p>
-            <div class="buttons">
-                <button id="yes-btn">Yes ❤️</button>
-                <button id="no-btn">No 😢</button>
-            </div>
-        </div>
+    <div class="container">
+        <h2>Weather App</h2>
+        <input type="text" id="city" placeholder="Enter city name">
+        <button onclick="getWeather()">Get Weather</button>
+        <div id="weatherResult"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        async function getWeather() {
+            const city = document.getElementById("city").value;
+            if (!city) {
+                alert("Please enter a city name");
+                return;
+            }
+            
+            const url = `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&format=json`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (!data.results) {
+                document.getElementById("weatherResult").innerHTML = "City not found";
+                return;
+            }
+            
+            const { latitude, longitude } = data.results[0];
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`;
+            const weatherResponse = await fetch(weatherUrl);
+            const weatherData = await weatherResponse.json();
+            
+            document.getElementById("weatherResult").innerHTML = `
+                <h3>${city}</h3>
+                <p>Temperature: ${weatherData.current_weather.temperature}°C</p>
+                <p>Wind Speed: ${weatherData.current_weather.windspeed} km/h</p>
+            `;
+        }
+    </script>
 </body>
 </html>
